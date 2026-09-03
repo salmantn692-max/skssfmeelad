@@ -319,7 +319,7 @@
       title: 'നൂറിന്‍ പ്രഭ',
       subtitle: 'മീലാദ് ക്യാമ്പയിൽ 2026',
       footer: 'SKSSF Campus wing 2026-27',
-      timePerQuestion: 15,
+      timePerQuestion: 10,
       fontPreset: 'rounded'
     },
     questions: [
@@ -394,7 +394,7 @@
     }catch(e){
       state.leaderboard = [];
     }
-    if(!state.data.config.timePerQuestion) state.data.config.timePerQuestion = 15;
+    if(!state.data.config.timePerQuestion) state.data.config.timePerQuestion = 10;
     if(!state.data.config.fontPreset || !FONT_PRESETS[state.data.config.fontPreset]) state.data.config.fontPreset = 'rounded';
     if(!state.data.students) state.data.students = [];
     state.view = 'login';
@@ -418,7 +418,7 @@
 
   function startTimer(){
     stopTimer();
-    var total = state.data.config.timePerQuestion || 15;
+    var total = state.data.config.timePerQuestion || 10;
     state.timeLeft = total;
     updateTimerUI(total, total);
     state.timerId = setInterval(function(){
@@ -450,7 +450,7 @@
   }
 
   function timerBadgeHtml(){
-    var total = state.data.config.timePerQuestion || 15;
+    var total = state.data.config.timePerQuestion || 10;
     return '<div class="timer-badge" id="timerWrap">' +
       '<svg viewBox="0 0 52 52">' +
       '<circle class="bg-fill" cx="26" cy="26" r="24"></circle>' +
@@ -468,6 +468,10 @@
       return s.regNo.trim().toLowerCase() === val.toLowerCase();
     });
     if(!match){ state.loginError = 'Register number not found. Contact the admin.'; render(); return; }
+    var already = state.leaderboard.find(function(e){
+      return e.regNo.trim().toLowerCase() === match.regNo.trim().toLowerCase();
+    });
+    if(already){ state.loginError = 'You have already completed this quiz. Only one attempt is allowed per register number.'; render(); return; }
     state.currentStudent = { regNo: match.regNo, name: match.name };
     state.loginError = '';
     state.qIndex = 0; state.selected = null; state.locked = false; state.score = 0;
@@ -663,7 +667,7 @@
     state.data.config.subtitle = subtitle || state.data.config.subtitle;
     state.data.config.footer = footer || state.data.config.footer;
     var timerVal = parseInt(document.getElementById('s-timer').value, 10);
-    state.data.config.timePerQuestion = (timerVal && timerVal >= 3) ? timerVal : (state.data.config.timePerQuestion || 15);
+    state.data.config.timePerQuestion = (timerVal && timerVal >= 3) ? timerVal : (state.data.config.timePerQuestion || 10);
     var fontVal = document.getElementById('s-font').value;
     state.data.config.fontPreset = FONT_PRESETS[fontVal] ? fontVal : (state.data.config.fontPreset || 'rounded');
     var ok = await saveData();
@@ -828,13 +832,11 @@
       '<div class="score">' + state.score + ' / ' + total + '</div>' +
       '<div class="end-actions">' +
       '<button class="btn btn-primary" id="submitScoreBtn">Save result</button>' +
-      '<button class="btn btn-light" id="restartBtn">Play again</button>' +
       '<button class="btn btn-outline" id="logoutBtn">Log out</button>' +
       '</div></div></div>' +
       footerBlock() +
       '</div>';
     document.getElementById('submitScoreBtn').addEventListener('click', submitScore);
-    document.getElementById('restartBtn').addEventListener('click', restartQuiz);
     document.getElementById('logoutBtn').addEventListener('click', logout);
     bindFooterLink();
   }
@@ -848,12 +850,10 @@
       '<h2>Result saved</h2>' +
       '<div class="score">' + state.score + ' / ' + total + '</div>' +
       '<div class="end-actions">' +
-      '<button class="btn btn-primary" id="restartBtn2">Play again</button>' +
       '<button class="btn btn-outline" id="logoutBtn2">Log out</button>' +
       '</div></div></div>' +
       footerBlock() +
       '</div>';
-    document.getElementById('restartBtn2').addEventListener('click', restartQuiz);
     document.getElementById('logoutBtn2').addEventListener('click', logout);
     bindFooterLink();
   }
@@ -997,7 +997,7 @@
         '<label>Title</label><input type="text" id="s-title" value="' + esc(c.title) + '">' +
         '<label>Subtitle</label><input type="text" id="s-subtitle" value="' + esc(c.subtitle) + '">' +
         '<label>Footer text</label><input type="text" id="s-footer" value="' + esc(c.footer) + '">' +
-        '<label>Seconds per question</label><input type="text" id="s-timer" value="' + esc(c.timePerQuestion || 15) + '">' +
+        '<label>Seconds per question</label><input type="text" id="s-timer" value="' + esc(c.timePerQuestion || 10) + '">' +
         '<label>Font style</label>' +
         '<select id="s-font">' + fontOptions + '</select>' +
         '<div class="form-actions"><button class="btn btn-primary" id="saveSettingsBtn">Save settings</button></div>' +
